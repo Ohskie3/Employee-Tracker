@@ -42,32 +42,42 @@ let start = () => {
   .catch(err => console.log(err))
 }
 
-
 let updateEmployee = () => {
-  db.query('SELECT * FROM employees', (err, data) => {
-    if (err) { console.log(err) }
-    prompt([
-      {
-        type: 'list',
-        name: 'roleChosen',
-        message: 'Which employee would you like to update?',
-        choices: data.map(employee => ({
-          title: `${employee.title}`,
-          value: employee.id
-        }))
-      },
-      {
-        type: 'input',
-        name:'employee',
-        message: 'What is the new role ID for the employee?'
-      }
-    ])
-    .then(({roleChosen}) => {
-      db.query(`UPDATE employees WHERE role_id = ${roleChosen.id}`)
+  db.query(`SELECT * FROM employees
+  LEFT JOIN roles ON employees.role_id = roles.id`,
+    (err, data) => {
+      if (err) { console.log(err) }
+      prompt([
+        {
+          type: 'list',
+        name: 'employees.id',
+        message: 'Which employee would you like to update ?',
+          choices: data.map(employee => ({
+            name: `${employee.first_name} ${employee.last_name}`,
+            value: employee.id
+          }))
+        },
+        {
+          type: 'list',
+      name: 'newRole',
+      message: 'Choose the new role for the employee',
+      choices: data.map(role => ({
+            name: `${role.title}`,
+            value: role.id
+          }))
+        }
+      ])
+        .then(res => {
+          db.query('UPDATE employees SET role_id = ? WHERE id = ?', [res.newRole, res.employees.id], err => {
+            if (err) { console.log(err) }
+            console.log('Role updated!')
+            start()
+          })
+        })
+        .catch(err => console.log(err))
     })
-  })
-
 }
+
 
 let addDepartment = () => {
   prompt([
@@ -87,7 +97,6 @@ let addDepartment = () => {
       start()
     })
   }) 
-  
 }
 let addRole = () => {
   prompt([
@@ -159,6 +168,7 @@ let addEmployee = () => {
     })
 }
 
+
 let viewDepartments = () => {
   db.query('SELECT * FROM departments', (err, data) => {
     if (err) { console.log(err) }
@@ -173,7 +183,6 @@ let viewRoles = () => {
     start()
   })
 }
-
 let viewEmployees = () => {
   db.query(`
     SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary, departments.name AS 'department', CONCAT(manager.first_name, ' ', manager.last_name) AS manager
@@ -188,3 +197,6 @@ let viewEmployees = () => {
 }
 
 start()
+
+
+
