@@ -1,1 +1,3 @@
 # Employee-Tracker
+
+This is an employee tracker application. To run it you want to make sure to have the npm inquirer installed. When you run the app in the console you will be prompted asking you what you would like to do. You will choose from the list between adding Departments, Roles, or employees and also viewing any of the Departments, Roles, or employees. You will also have the option to update the role of any employee. Once a choice is selected you will conitinue to fill out what is required then the results will be shown in the console. 
